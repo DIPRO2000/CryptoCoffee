@@ -1,17 +1,17 @@
-"use client"; // This is required for Context Providers
+"use client";
 
-import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClientInstance } from '@/lib/query-client';
 import { AuthProvider } from '@/lib/AuthContext';
 import { Toaster } from "@/components/ui/sonner";
+import { AuthWrapper } from "./auth-wrapper";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
+      {/* The wrapper intercepts rendering until auth is ready */}
+      <AuthWrapper>
         {children}
-        <Toaster />
-      </QueryClientProvider>
+      </AuthWrapper>
+      <Toaster />
     </AuthProvider>
   );
 }

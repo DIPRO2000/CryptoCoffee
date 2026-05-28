@@ -1,11 +1,8 @@
-"use client"; // <-- THIS IS CRITICAL FOR NEXT.JS!
-
 import { useState, useEffect, useCallback } from "react";
 import { ethers, BrowserProvider } from "ethers";
 import { Coffee, CheckCircle, ShoppingBag } from "lucide-react";
 
-// Make sure these paths are correct relative to your page.tsx file!
-// If your page.tsx is in the app/ folder, you might need to change these to "@/components/..."
+// Assuming these are your imported components
 import WalletConnect from "../components/web3/WalletConnect";
 import BalanceCard from "../components/web3/BalanceCard";
 import RedeemTokens from "../components/web3/RedeemTokens";
@@ -23,16 +20,19 @@ import {
   ERC20_ABI
 } from "../components/web3/contracts";
 
+// 1. Declare global window interface for MetaMask injection
 declare global {
   interface Window {
     ethereum?: any;
   }
 }
 
+// 2. Define TypeScript interfaces for your data structures
 export interface MenuItem {
   id: string | number;
   name?: string;
   price?: number;
+  // Fallback for other item properties (image, description, etc.)
   [key: string]: any; 
 }
 
@@ -41,6 +41,7 @@ export interface CartItem extends MenuItem {
 }
 
 export default function Home() {
+  // 3. Explicitly type all useState hooks
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
   const [account, setAccount] = useState<string | null>(null);
   const [chainId, setChainId] = useState<string | null>(null);
@@ -56,6 +57,7 @@ export default function Home() {
   const [checkoutOpen, setCheckoutOpen] = useState<boolean>(false);
   const [successMsg, setSuccessMsg] = useState<string>("");
 
+  // 4. Type function parameters
   const addToCart = (item: MenuItem) => {
     setCart((prev) => {
       const existing = prev.find((c) => c.id === item.id);
@@ -81,6 +83,7 @@ export default function Home() {
     setTimeout(() => setSuccessMsg(""), 6000);
   };
 
+  // 5. Type useCallback parameters (BrowserProvider and string for address)
   const loadBalances = useCallback(async (prov: BrowserProvider, acc: string) => {
     try {
       const ethBal = await prov.getBalance(acc);
@@ -137,6 +140,7 @@ export default function Home() {
   useEffect(() => {
     if (!window.ethereum) return;
     
+    // Explicitly typing 'accs' as string array
     window.ethereum.on("accountsChanged", (accs: string[]) => {
       if (accs.length === 0) {
         setAccount(null);
