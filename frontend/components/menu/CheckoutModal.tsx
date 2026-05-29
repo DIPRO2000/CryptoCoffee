@@ -93,26 +93,35 @@ export default function CheckoutModal({
 
       if (payMethod === "eth") {
         if (!costInWei) throw new Error("ETH price not loaded yet");
-        const tx = await contract.buyWithETH(totalItems, { value: costInWei });
+
+        const scaledUSDC = Math.round(totalUSDC * 100);
+
+        const tx = await contract.buyCoffeeWithETH(scaledUSDC, { value: costInWei });
         await tx.wait();
 
       } else if (payMethod === "usdc") {
+        console.log("USDC:",totalUSDC);
         const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, provider);
         const allowance = await usdc.allowance(account, CAFE_PAYMENT_ADDRESS);
         const required = ethers.parseUnits(totalUSDC.toFixed(6), 6);
         
         if (allowance < required) {
-          setError("Please approve USDC spending first.");
+          const missingWei = required - allowance;
+          const readableMissing = ethers.formatUnits(missingWei, 6);
+
+          setError(`Please approve ${readableMissing} USDC spending first.`);
           setLoading(false);
           return;
         }
+
+        const scaledUSDC = Math.round(totalUSDC * 100);
         
-        const tx = await contract.buyWithUSDC(totalItems);
+        const tx = await contract.buyCoffeeWithUSDC(scaledUSDC);
         await tx.wait();
 
       } else if (payMethod === "token") {
         const required = ethers.parseUnits(totalTokens.toString(), 18); 
-        const tx = await contract.redeem(required);
+        const tx = await contract.buyCoffeeWithTokens(required);
         await tx.wait();
       }
 

@@ -287,7 +287,7 @@ export default function Marketplace() {
         )}
 
         {/* Checkout modal */}
-        {checkoutOpen && (
+        {checkoutOpen && provider && account && (
           <CheckoutModal
             cart={cart}
             provider={provider}
