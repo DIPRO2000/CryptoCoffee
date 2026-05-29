@@ -49,7 +49,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState<boolean>(true);
-  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState<boolean>(true);
+  
+  // Set to false immediately since we bypassed the settings fetch
+  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState<boolean>(false); 
   const [authError, setAuthError] = useState<AuthError | null>(null);
   const [appPublicSettings, setAppPublicSettings] = useState<AppPublicSettings | null>(null);
 
@@ -64,62 +66,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAppState = async (): Promise<void> => {
     try {
-      setIsLoadingPublicSettings(true);
       setAuthError(null);
-      
       const token = getToken();
-      
-      // FIX 1: Safely initialize headers without forcing appId immediately
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      };
-      
-      // FIX 2: Only add the X-App-Id header if appId actually exists
-      if (appParams.appId) {
-        headers['X-App-Id'] = appParams.appId;
-      }
-      
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
 
-      // FIX 3: Safe URL construction so we don't accidentally fetch `/by-id/null`
-      const settingsUrl = appParams.appId 
-        ? `/api/apps/public/prod/public-settings/by-id/${appParams.appId}`
-        : `/api/apps/public/prod/public-settings`; // Fallback route if no ID is used
-
-      const response = await fetch(settingsUrl, {
-        method: 'GET',
-        headers: headers
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        
-        if (response.status === 403 && errorData?.extra_data?.reason) {
-          const reason = errorData.extra_data.reason;
-          if (reason === 'auth_required' || reason === 'user_not_registered') {
-            setAuthError({
-              type: reason,
-              message: reason === 'auth_required' ? 'Authentication required' : 'User not registered for this app'
-            });
-          } else {
-            setAuthError({ type: reason, message: errorData.message || 'Access denied' });
-          }
-        } else {
-          // If the custom settings route doesn't exist yet, we can safely ignore it for local dev
-          console.warn('Public settings endpoint failed or missing. Continuing without settings.');
-        }
-        
-        setIsLoadingPublicSettings(false);
-        // We don't return here anymore! We let it fall through to check auth anyway.
-      } else {
-        const publicSettings: AppPublicSettings = await response.json();
-        setAppPublicSettings(publicSettings);
-        setIsLoadingPublicSettings(false);
-      }
-
-      // Now check user auth
+      // We skipped the settings fetch and go straight to Auth!
       if (token && !authError) {
         await checkUserAuth(token);
       } else {
@@ -133,7 +83,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         type: 'unknown',
         message: error?.message || 'An unexpected error occurred'
       });
-      setIsLoadingPublicSettings(false);
       setIsLoadingAuth(false);
     }
   };

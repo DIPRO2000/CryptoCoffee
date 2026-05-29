@@ -10,7 +10,7 @@ import WalletConnect from "@/components/web3/WalletConnect";
 import BalanceCard from "@/components/web3/BalanceCard";
 import RedeemTokens from "@/components/web3/RedeemTokens";
 import AdminPanel from "@/components/web3/AdminPanel";
-import MenuGrid from "@/components/menu/MenuGrid";
+import MenuGrid, {MenuItem, CartItem} from "@/components/menu/MenuGrid";
 import CartSidebar from "@/components/menu/CardSidebar";
 import CheckoutModal from "@/components/menu/CheckoutModal";
 
@@ -27,17 +27,6 @@ declare global {
   interface Window {
     ethereum?: any;
   }
-}
-
-export interface MenuItem {
-  id: string | number;
-  name?: string;
-  price?: number;
-  [key: string]: any; 
-}
-
-export interface CartItem extends MenuItem {
-  qty: number;
 }
 
 export default function Marketplace() {
@@ -110,7 +99,13 @@ export default function Marketplace() {
     setConnecting(true);
     try {
       const prov = new ethers.BrowserProvider(window.ethereum);
+
+      await prov.send("wallet_requestPermissions", [
+        { eth_accounts: {} }
+      ]);
+
       await prov.send("eth_requestAccounts", []);
+
       const signer = await prov.getSigner();
       const addr = await signer.getAddress();
       const network = await prov.getNetwork();
@@ -121,7 +116,7 @@ export default function Marketplace() {
 
       await loadBalances(prov, addr);
     } catch (e) {
-      console.error(e);
+      console.error("Wallet connection cancelled or failed:", e);
     } finally {
       setConnecting(false);
     }
@@ -283,6 +278,7 @@ export default function Marketplace() {
         {cartOpen && (
           <CartSidebar
             cart={cart}
+            provider={provider}
             onUpdate={updateCartQty}
             onRemove={removeFromCart}
             onCheckout={() => { setCartOpen(false); setCheckoutOpen(true); }}
@@ -296,6 +292,9 @@ export default function Marketplace() {
             cart={cart}
             provider={provider}
             account={account}
+            ethBalance={ethBalance}   
+            usdcBalance={usdcBalance} 
+            cafeBalance={cafeBalance} 
             onClose={() => setCheckoutOpen(false)}
             onSuccess={(msg: string) => {
               setCheckoutOpen(false);

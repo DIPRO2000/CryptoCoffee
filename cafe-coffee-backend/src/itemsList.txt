@@ -1,7 +1,4 @@
-export const MENU = [
-  // ==========================================
-  // COFFEES
-  // ==========================================
+[
   { id: "espresso",        category: "Coffee",  name: "Espresso",          emoji: "☕", desc: "Rich & bold single shot",             priceUSDC: 2.5, priceToken: 25, tokenGifted: 5 },
   { id: "latte",           category: "Coffee",  name: "Café Latte",        emoji: "🥛", desc: "Espresso with steamed milk",          priceUSDC: 3.5, priceToken: 35, tokenGifted: 7 },
   { id: "cappuccino",      category: "Coffee",  name: "Cappuccino",        emoji: "☕", desc: "Foam, milk & espresso",               priceUSDC: 3.5, priceToken: 35, tokenGifted: 7 },
@@ -12,29 +9,17 @@ export const MENU = [
   { id: "macchiato",       category: "Coffee",  name: "Macchiato",         emoji: "☕", desc: "Espresso with a dash of foam",        priceUSDC: 3.0, priceToken: 30, tokenGifted: 6 },
   { id: "caramel_mac",     category: "Coffee",  name: "Caramel Macchiato", emoji: "🍯", desc: "Vanilla bean, espresso & caramel",    priceUSDC: 4.5, priceToken: 45, tokenGifted: 9 },
   { id: "irish_coffee",    category: "Coffee",  name: "Irish Coffee",      emoji: "☘️", desc: "Hot coffee, sugar, and thick cream",  priceUSDC: 5.0, priceToken: 50, tokenGifted: 10 },
-
-  // ==========================================
-  // TEAS & NON-COFFEE
-  // ==========================================
   { id: "matcha_latte",    category: "Tea",     name: "Matcha Latte",      emoji: "🍵", desc: "Earthy green tea with steamed milk",  priceUSDC: 4.5, priceToken: 45, tokenGifted: 9 },
   { id: "chai_latte",      category: "Tea",     name: "Chai Latte",        emoji: "🫖", desc: "Spiced black tea and steamed milk",   priceUSDC: 4.0, priceToken: 40, tokenGifted: 8 },
   { id: "earl_grey",       category: "Tea",     name: "Earl Grey Tea",     emoji: "☕", desc: "Black tea with bergamot essence",     priceUSDC: 2.5, priceToken: 25, tokenGifted: 5 },
   { id: "hot_chocolate",   category: "Drink",   name: "Hot Chocolate",     emoji: "🍫", desc: "Rich cocoa with whipped cream",       priceUSDC: 3.5, priceToken: 35, tokenGifted: 7 },
   { id: "lemonade",        category: "Drink",   name: "Fresh Lemonade",    emoji: "🍋", desc: "Iced, tart, and refreshing",          priceUSDC: 3.0, priceToken: 30, tokenGifted: 6 },
-
-  // ==========================================
-  // SNACKS & SAVORY
-  // ==========================================
   { id: "croissant",       category: "Snack",   name: "Butter Croissant",  emoji: "🥐", desc: "Flaky, golden & buttery",             priceUSDC: 3.0, priceToken: 30, tokenGifted: 6 },
   { id: "cheese_toast",    category: "Snack",   name: "Cheese Toast",      emoji: "🧀", desc: "Toasted sourdough with cheese",       priceUSDC: 3.5, priceToken: 35, tokenGifted: 7 },
   { id: "avocado_toast",   category: "Snack",   name: "Avocado Toast",     emoji: "🥑", desc: "Fresh avocado on artisan bread",      priceUSDC: 5.0, priceToken: 50, tokenGifted: 10 },
   { id: "granola_bar",     category: "Snack",   name: "Granola Bar",       emoji: "🌾", desc: "Crunchy oats with honey & nuts",      priceUSDC: 2.5, priceToken: 25, tokenGifted: 5 },
   { id: "sandwich",        category: "Snack",   name: "Club Sandwich",     emoji: "🥪", desc: "Turkey, cheese & fresh veggies",      priceUSDC: 6.5, priceToken: 65, tokenGifted: 13 },
   { id: "bagel_cc",        category: "Snack",   name: "Bagel & Cream",     emoji: "🥯", desc: "Toasted bagel with cream cheese",     priceUSDC: 3.5, priceToken: 35, tokenGifted: 7 },
-
-  // ==========================================
-  // PASTRIES & DESSERTS
-  // ==========================================
   { id: "muffin",          category: "Dessert", name: "Blueberry Muffin",  emoji: "🫐", desc: "Bursting with fresh blueberries",     priceUSDC: 2.5, priceToken: 25, tokenGifted: 5 },
   { id: "banana_bread",    category: "Dessert", name: "Banana Bread",      emoji: "🍞", desc: "Moist, warm & homemade",              priceUSDC: 3.0, priceToken: 30, tokenGifted: 6 },
   { id: "cookie",          category: "Dessert", name: "Choco Chip Cookie", emoji: "🍪", desc: "Warm, gooey & indulgent",             priceUSDC: 2.0, priceToken: 20, tokenGifted: 4 },
@@ -42,4 +27,4 @@ export const MENU = [
   { id: "tiramisu",        category: "Dessert", name: "Tiramisu",          emoji: "🍮", desc: "Espresso-soaked ladyfingers & cream", priceUSDC: 6.0, priceToken: 60, tokenGifted: 12 },
   { id: "brownie",         category: "Dessert", name: "Fudge Brownie",     emoji: "🍫", desc: "Rich chocolate brownie square",       priceUSDC: 3.5, priceToken: 35, tokenGifted: 7 },
   { id: "macaron",         category: "Dessert", name: "French Macaron",    emoji: "🧁", desc: "Delicate almond meringue sandwich",   priceUSDC: 2.5, priceToken: 25, tokenGifted: 5 }
-];
+]

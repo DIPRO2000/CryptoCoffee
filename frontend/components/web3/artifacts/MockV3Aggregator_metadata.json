@@ -1,0 +1,143 @@
+{
+	"compiler": {
+		"version": "0.8.30+commit.73712a01"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "uint8",
+						"name": "_decimals",
+						"type": "uint8"
+					},
+					{
+						"internalType": "int256",
+						"name": "_initialAnswer",
+						"type": "int256"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [],
+				"name": "currentAnswer",
+				"outputs": [
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "decimals",
+				"outputs": [
+					{
+						"internalType": "uint8",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "latestRoundData",
+				"outputs": [
+					{
+						"internalType": "uint80",
+						"name": "roundId",
+						"type": "uint80"
+					},
+					{
+						"internalType": "int256",
+						"name": "answer",
+						"type": "int256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "startedAt",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "updatedAt",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint80",
+						"name": "answeredInRound",
+						"type": "uint80"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "int256",
+						"name": "_newAnswer",
+						"type": "int256"
+					}
+				],
+				"name": "updateAnswer",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"title": "MockV3Aggregator",
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {
+				"latestRoundData()": {
+					"notice": "This is the exact function signature your payment contract calls. We just hardcode the extra variables to 0 because your contract ignores them anyway."
+				},
+				"updateAnswer(int256)": {
+					"notice": "Use this function during testing to simulate crypto market volatility!"
+				}
+			},
+			"notice": "A fake Chainlink oracle for local Ganache testing",
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/MockV3Aggregator.sol": "MockV3Aggregator"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/MockV3Aggregator.sol": {
+			"keccak256": "0x19d8060b48a1b2403e24bfabb9101ccf846741fdf762496ed911b3abc168c488",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://ae645a235ec1fbaa9a9f6ed551bc4fff08d3e72f3cde75dbdecd1db0ac02b609",
+				"dweb:/ipfs/QmWzEpg5g61S8BagnGDQNFYeBB7Q6yNKyqeewzAgB869fE"
+			]
+		}
+	},
+	"version": 1
+}
