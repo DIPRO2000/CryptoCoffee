@@ -32,7 +32,6 @@ contract CafeCoffeePayment is Ownable {
     }
 
     // Fetches the latest live ETH price from the Chainlink Oracle (scaled to 8 decimals)
-
     function getLatestETHPrice() public view returns (int256) {
         (, int256 price, , , ) = priceFeed.latestRoundData();
         return price;
@@ -40,7 +39,6 @@ contract CafeCoffeePayment is Ownable {
 
 
     // Dynamically calculates how much native Wei is required based on the target USD amount
-
     function getCoffeeCostInETH(uint coffeePriceInUSD) public view returns (uint256) {
         int256 ethPriceInUSD = getLatestETHPrice(); 
         require(ethPriceInUSD > 0, "Invalid oracle price");
@@ -52,8 +50,7 @@ contract CafeCoffeePayment is Ownable {
 
 
     // Allows customers to purchase using ETH
-
-    function buyCoffeeWithETH(uint coffeePriceInUSD) external payable {
+    function buyCoffeeWithETH(uint coffeePriceInUSD, uint tokenGifted) external payable {
         uint256 requiredETH = getCoffeeCostInETH(coffeePriceInUSD);
         require(msg.value >= requiredETH, "Insufficient ETH sent");
 
@@ -63,30 +60,33 @@ contract CafeCoffeePayment is Ownable {
         }
 
         // Mints 10 standard 18-decimal loyalty units to the buyer
-        loyaltyToken.mint(msg.sender, 10 * 10**18);
+        if(tokenGifted > 0 )
+        {
+            loyaltyToken.mint(msg.sender, tokenGifted * 10**18);
+        }
 
-        emit CoffeePurchasedWithETH(msg.sender, requiredETH, 10 * 10**18);
+        emit CoffeePurchasedWithETH(msg.sender, requiredETH, tokenGifted * 10**18);
     }
 
-    /**
-     * @notice Allows customers to purchase using standard USDC stablecoin
-     * @dev Frontend workflow must run usdcToken.approve(address(this), amount) prior to execution
-     */
-    function buyCoffeeWithUSDC(uint coffeePriceInUSD) external {
+
+    // Allows customers to purchase using standard USDC stablecoin
+    function buyCoffeeWithUSDC(uint coffeePriceInUSD, uint tokenGifted) external {
         // USDC uses 6 decimals. 400 * 10^4 handles $4.00 correctly
         uint256 usdcAmount = coffeePriceInUSD * 10**4; 
 
         bool success = usdcToken.transferFrom(msg.sender, address(this), usdcAmount);
         require(success, "USDC transfer failed");
 
-        loyaltyToken.mint(msg.sender, 10 * 10**18);
+        if(tokenGifted > 0)
+        {
+            loyaltyToken.mint(msg.sender, tokenGifted * 10**18);
+        }
 
-        emit CoffeePurchasedWithUSDC(msg.sender, usdcAmount, 10 * 10**18);
+        emit CoffeePurchasedWithUSDC(msg.sender, usdcAmount, tokenGifted * 10**18);
     }
 
-    /**
-     * @notice Allows admin to adjust the global USD price structure
-     */
+
+    // Allows admin to adjust the global USD price structure
     function buyCoffeeWithTokens(uint256 amount) external {
         uint256 requiredToken = amount * 10**18;
         uint256 customerToken = loyaltyToken.balanceOf(msg.sender);
@@ -98,14 +98,21 @@ contract CafeCoffeePayment is Ownable {
         emit CoffeePurchasedWithToken(msg.sender, requiredToken);
     }
 
-    /**
-     * @notice Emergency/Operational withdrawal function for collected retail revenue
-     */
-    function withdrawFunds() external onlyOwner {
-        payable(owner()).transfer(address(this).balance);
+
+    // Emergency/Operational withdrawal function for collected retail revenue
+    function withdrawFundsETH() external onlyOwner {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No ETH to withdraw");
+
+        (bool success, ) = owner().call{value: balance}("");
+        require(success, "ETH Transfer Failed");
+    }
+
+    function withdrawFundsUSDC() external onlyOwner {
         uint256 usdcBalance = usdcToken.balanceOf(address(this));
-        if (usdcBalance > 0) {
-            usdcToken.transfer(owner(), usdcBalance);
-        }
+        require(usdcBalance > 0, "No USDC to withdraw");
+
+        bool success = usdcToken.transfer(owner(), usdcBalance);
+        require(success, "USDC Transfer Failed");
     }
 }

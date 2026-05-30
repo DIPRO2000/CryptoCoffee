@@ -2,13 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { ethers, BrowserProvider } from "ethers";
-import { Coffee, CheckCircle, ShoppingBag, ArrowLeft } from "lucide-react";
+import { Coffee, CheckCircle, ShoppingBag, ArrowLeft, Info } from "lucide-react"; 
 import Link from "next/link";
 
 // Adjust these relative imports based on your folder structure!
 import WalletConnect from "@/components/web3/WalletConnect";
 import BalanceCard from "@/components/web3/BalanceCard";
-import AdminPanel from "@/components/web3/AdminPanel";
 import MenuGrid, {MenuItem, CartItem} from "@/components/menu/MenuGrid";
 import CartSidebar from "@/components/menu/CardSidebar";
 import CheckoutModal from "@/components/menu/CheckoutModal";
@@ -143,7 +142,7 @@ export default function Marketplace() {
     window.ethereum.on("chainChanged", () => window.location.reload());
   }, [provider, loadBalances]);
 
-  const HARDHAT_CHAIN_ID = "1337"; // Standard local Hardhat network ID
+  const HARDHAT_CHAIN_ID = "1337"; 
   const SEPOLIA_DECIMAL = parseInt(SEPOLIA_CHAIN_ID, 16).toString();
 
   const isDevelopment = process.env.NEXT_PUBLIC_NODE_ENV === "development";
@@ -159,24 +158,25 @@ export default function Marketplace() {
       <header className="border-b border-[#C4A484]/20 bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           
-          {/* Left Side: Logo & Back */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Link href="/" className="p-1.5 sm:p-2 hover:bg-[#C4A484]/10 rounded-full transition-colors text-[#6F4E37] -ml-2 sm:ml-0">
+          {/* Left Side: Logo & Back (Added min-w-0 to prevent text blowout) */}
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <Link href="/" className="p-1.5 sm:p-2 hover:bg-[#C4A484]/10 rounded-full transition-colors text-[#6F4E37] -ml-2 sm:ml-0 shrink-0">
               <ArrowLeft className="w-5 h-5 sm:w-5 sm:h-5" />
             </Link>
-            <div className="flex items-center gap-2 sm:gap-2.5">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[#6F4E37] rounded-xl flex items-center justify-center">
+            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[#6F4E37] rounded-xl flex items-center justify-center shrink-0">
                 <Coffee className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <div className="hidden min-[380px]:block">
-                <span className="font-bold text-[#3d2b1a] text-base sm:text-lg leading-none block">Store</span>
+              {/* Hide text entirely on extra tiny screens to leave room for wallet address */}
+              <div className="hidden min-[400px]:block truncate">
+                <span className="font-bold text-[#3d2b1a] text-base sm:text-lg leading-none block truncate">Store</span>
                 <span className="text-[#6F4E37]/50 text-[10px] sm:text-xs">Sepolia</span>
               </div>
             </div>
           </div>
           
-          {/* Right Side: Cart & Wallet */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Right Side: Cart & Wallet (Added shrink-0 to protect buttons) */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {account && (
               <button
                 onClick={() => setCartOpen(true)}
@@ -215,12 +215,28 @@ export default function Marketplace() {
         {/* Balances */}
         {account && (
           <section>
-            <h2 className="text-[10px] sm:text-xs font-semibold text-[#6F4E37]/50 uppercase tracking-wider mb-3">Your Wallet Balances</h2>
-            {/* Grid stacks on mobile, 3 columns on sm screens and up */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            {/* MOBILE FIX: Make the gap larger on mobile, and stretch the faucet link full width */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-4 sm:mb-3 gap-3 sm:gap-2">
+              <h2 className="text-[10px] sm:text-xs font-semibold text-[#6F4E37]/50 uppercase tracking-wider">Your Wallet Balances</h2>
+              
+              <a 
+                href="https://faucet.circle.com/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 text-[10px] sm:text-xs font-semibold text-[#6F4E37]/70 hover:text-[#3d2b1a] transition-colors bg-[#6F4E37]/5 hover:bg-[#6F4E37]/10 px-3 py-2 sm:py-1.5 rounded-xl sm:rounded-full w-full sm:w-auto text-center"
+              >
+                <Info className="w-3.5 h-3.5 shrink-0" />
+                <span>Need test USDC? Get it from the Circle Faucet ↗</span>
+              </a>
+            </div>
+
+            {/* MOBILE FIX: Changed to grid-cols-2 on mobile. ETH/USDC side by side, CAFE full width underneath */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
               <BalanceCard label="ETH" value={ethBalance} symbol="Ether" icon="⟠" />
               <BalanceCard label="USDC" value={usdcBalance} symbol="USD Coin" icon="💵" />
-              <BalanceCard label="CAFE" value={cafeBalance} symbol="CryptoCoffeeToken (CCT)" icon="☕" />
+              <div className="col-span-2 sm:col-span-1">
+                <BalanceCard label="CAFE" value={cafeBalance} symbol="CryptoCoffeeToken (CCT)" icon="☕" />
+              </div>
             </div>
           </section>
         )}
@@ -264,10 +280,6 @@ export default function Marketplace() {
               </div>
               <MenuGrid onAddToCart={addToCart} cart={cart} />
             </section>
-
-            {isOwner && (
-              <AdminPanel provider={provider} onSuccess={handleSuccess} />
-            )}
           </>
         )}
 

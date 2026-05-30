@@ -5,10 +5,11 @@ import { ethers, BrowserProvider } from "ethers";
 import { Lock, Coffee, Wallet, ShieldAlert, Save, RefreshCw, Send, Plus, Trash2, AlertCircle, ListChecks, Undo2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
-// Adjust these imports to match your project structure
 import { 
   CAFE_PAYMENT_ADDRESS, 
-  CAFE_PAYMENT_ABI 
+  CAFE_PAYMENT_ABI,
+  USDC_ADDRESS,
+  ERC20_ABI
 } from "@/components/web3/contracts";
 import { MenuItem } from "@/components/menu/MenuGrid";
 
@@ -27,7 +28,13 @@ export default function AdminPage() {
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [loadingAuth, setLoadingAuth] = useState<boolean>(false);
 
+  // Expanded Balances State
   const [contractEth, setContractEth] = useState<string>("0.00");
+  const [contractUsdc, setContractUsdc] = useState<string>("0.00");
+  const [ownerEth, setOwnerEth] = useState<string>("0.00");
+  const [ownerUsdc, setOwnerUsdc] = useState<string>("0.00");
+  const [isRefreshingBalances, setIsRefreshingBalances] = useState<boolean>(false);
+
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [newOwner, setNewOwner] = useState<string>("");
   const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null);
@@ -42,6 +49,30 @@ export default function AdminPage() {
   const showMessage = (text: string, type: "error" | "success") => {
     setMessage({ text, type });
     setTimeout(() => setMessage(null), 5000);
+  };
+
+  // Reusable Balances Fetcher ---
+  const fetchBalances = async (prov: BrowserProvider, currentAccount: string) => {
+    setIsRefreshingBalances(true);
+    try {
+      const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, prov);
+
+      // Fetch Owner Balances
+      const oEth = await prov.getBalance(currentAccount);
+      const oUsdc = await usdcContract.balanceOf(currentAccount);
+      setOwnerEth(ethers.formatEther(oEth));
+      setOwnerUsdc(ethers.formatUnits(oUsdc, 6)); // USDC has 6 decimals
+
+      // Fetch Contract Balances
+      const cEth = await prov.getBalance(CAFE_PAYMENT_ADDRESS);
+      const cUsdc = await usdcContract.balanceOf(CAFE_PAYMENT_ADDRESS);
+      setContractEth(ethers.formatEther(cEth));
+      setContractUsdc(ethers.formatUnits(cUsdc, 6));
+    } catch (error) {
+      console.error("Failed to fetch balances", error);
+    } finally {
+      setIsRefreshingBalances(false);
+    }
   };
 
   const connectAndCheckOwner = async () => {
@@ -62,8 +93,7 @@ export default function AdminPage() {
       
       if (addr.toLowerCase() === contractOwner.toLowerCase()) {
         setIsOwner(true);
-        const ethBal = await prov.getBalance(CAFE_PAYMENT_ADDRESS);
-        setContractEth(ethers.formatEther(ethBal));
+        await fetchBalances(prov, addr); // Load all balances
         fetchMenu(); 
       } else {
         setIsOwner(false);
@@ -76,17 +106,17 @@ export default function AdminPage() {
   };
 
   const handleWithdraw = async (asset: "ETH" | "USDC") => {
-    if (!provider) return;
+    if (!provider || !account) return;
     setLoadingAction(`withdraw_${asset}`);
     try {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(CAFE_PAYMENT_ADDRESS, CAFE_PAYMENT_ABI, signer);
-      const tx = asset === "ETH" ? await contract.withdrawETH() : await contract.withdrawUSDC();
+      
+      const tx = asset === "ETH" ? await contract.withdrawFundsETH() : await contract.withdrawFundsUSDC();
       await tx.wait();
       
       showMessage(`Successfully withdrew ${asset} to your wallet!`, "success");
-      const ethBal = await provider.getBalance(CAFE_PAYMENT_ADDRESS);
-      setContractEth(ethers.formatEther(ethBal));
+      await fetchBalances(provider, account); // Refresh all balances to reflect the transfer
     } catch (e: any) {
       showMessage(e.reason || e.message || `Failed to withdraw ${asset}`, "error");
     } finally {
@@ -117,7 +147,6 @@ export default function AdminPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/menu`);
       if (res.ok) {
         const data = await res.json();
-        // Ensure all fetched items have an isAvailable property to prevent undefined errors
         const sanitizedData = data.map((item: any) => ({
           ...item,
           isAvailable: item.isAvailable !== undefined ? item.isAvailable : true
@@ -167,7 +196,6 @@ export default function AdminPage() {
 
   const addMenuItem = () => {
     const newCat = activeCategory !== "All" ? activeCategory : "Coffee";
-    // ADDED: Default isAvailable to true for new items
     const newItem: MenuItem = { id: `item_${Date.now()}`, name: "", category: newCat, emoji: "☕", desc: "", priceUSDC: 1, priceToken: 10, tokenGifted: 2, isAvailable: true };
     setMenuItems([...menuItems, newItem]);
   };
@@ -195,8 +223,6 @@ export default function AdminPage() {
         if (orig.tokenGifted !== curr.tokenGifted) details.push(`Gift: ${orig.tokenGifted} ➔ ${curr.tokenGifted}`);
         if (orig.category !== curr.category) details.push(`Category: ${orig.category} ➔ ${curr.category}`);
         if (orig.emoji !== curr.emoji) details.push(`Emoji changed`);
-        
-        // ADDED: Track availability changes
         if (orig.isAvailable !== curr.isAvailable) {
           details.push(`Status: ${orig.isAvailable ? 'In Stock' : 'Sold Out'} ➔ ${curr.isAvailable ? 'In Stock' : 'Sold Out'}`);
         }
@@ -280,18 +306,52 @@ export default function AdminPage() {
         {/* TOP ROW: Controls */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <section className="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-[#C4A484]/20">
-            <h2 className="text-base sm:text-lg font-bold text-[#3d2b1a] flex items-center gap-2 mb-3 sm:mb-4">
-              <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-[#6F4E37]" /> Vault Controls
-            </h2>
-            <div className="p-3 sm:p-4 bg-[#FFF8E7] rounded-2xl mb-3 sm:mb-4 border border-[#C4A484]/30">
-              <p className="text-[10px] sm:text-xs text-[#6F4E37]/70 font-semibold uppercase tracking-wider mb-1">Contract Balance</p>
-              <p className="text-2xl sm:text-3xl font-mono font-bold text-[#3d2b1a] truncate">{parseFloat(contractEth).toFixed(4)} <span className="text-sm sm:text-base text-[#6F4E37]">ETH</span></p>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base sm:text-lg font-bold text-[#3d2b1a] flex items-center gap-2">
+                <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-[#6F4E37]" /> Vault Controls
+              </h2>
+              <button 
+                onClick={() => fetchBalances(provider!, account!)} 
+                disabled={isRefreshingBalances}
+                className="text-[#6F4E37]/50 hover:text-[#6F4E37] transition-colors p-1"
+                title="Refresh Balances"
+              >
+                <RefreshCw className={`w-4 h-4 ${isRefreshingBalances ? 'animate-spin' : ''}`} />
+              </button>
             </div>
+
+            {/* Balances Grid */}
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div className="p-3 sm:p-4 bg-[#FFF8E7] rounded-2xl border border-[#C4A484]/30">
+                <p className="text-[10px] sm:text-xs text-[#6F4E37]/70 font-semibold uppercase tracking-wider mb-1">Contract ETH</p>
+                <p className="text-lg sm:text-2xl font-mono font-bold text-[#3d2b1a] truncate">
+                  {parseFloat(contractEth).toFixed(4)} <span className="text-[10px] sm:text-xs text-[#6F4E37]">ETH</span>
+                </p>
+              </div>
+              <div className="p-3 sm:p-4 bg-[#FFF8E7] rounded-2xl border border-[#C4A484]/30">
+                <p className="text-[10px] sm:text-xs text-[#6F4E37]/70 font-semibold uppercase tracking-wider mb-1">Contract USDC</p>
+                <p className="text-lg sm:text-2xl font-mono font-bold text-[#3d2b1a] truncate">
+                  <span className="text-[10px] sm:text-xs text-[#6F4E37]">$</span> {parseFloat(contractUsdc).toFixed(2)}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="p-3 bg-gray-50 rounded-xl border border-gray-200/60">
+                <p className="text-[9px] sm:text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">Your Wallet ETH</p>
+                <p className="text-sm sm:text-base font-mono font-bold text-gray-700 truncate">{parseFloat(ownerEth).toFixed(4)}</p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-xl border border-gray-200/60">
+                <p className="text-[9px] sm:text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">Your Wallet USDC</p>
+                <p className="text-sm sm:text-base font-mono font-bold text-gray-700 truncate">${parseFloat(ownerUsdc).toFixed(2)}</p>
+              </div>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <button onClick={() => handleWithdraw("ETH")} disabled={loadingAction !== null} className="w-full bg-[#6F4E37] hover:bg-[#5a3e2b] text-white py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+              <button onClick={() => handleWithdraw("ETH")} disabled={loadingAction !== null || parseFloat(contractEth) === 0} className="w-full bg-[#6F4E37] hover:bg-[#5a3e2b] text-white py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                 {loadingAction === "withdraw_ETH" ? <RefreshCw className="w-4 h-4 animate-spin" /> : "Withdraw ETH"}
               </button>
-              <button onClick={() => handleWithdraw("USDC")} disabled={loadingAction !== null} className="w-full bg-white border border-[#6F4E37] text-[#6F4E37] hover:bg-[#6F4E37]/5 py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+              <button onClick={() => handleWithdraw("USDC")} disabled={loadingAction !== null || parseFloat(contractUsdc) === 0} className="w-full bg-white border border-[#6F4E37] text-[#6F4E37] hover:bg-[#6F4E37]/5 py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                 {loadingAction === "withdraw_USDC" ? <RefreshCw className="w-4 h-4 animate-spin" /> : "Withdraw USDC"}
               </button>
             </div>
@@ -362,7 +422,7 @@ export default function AdminPage() {
                       
                       <input type="text" value={item.name} onChange={(e) => updateMenuItem(item.id, "name", e.target.value)} className="flex-1 min-w-0 bg-white border border-[#C4A484]/30 rounded-xl p-2.5 sm:p-3 text-sm font-bold text-[#3d2b1a] focus:outline-none focus:border-[#6F4E37]" placeholder="Item Name" />
                       
-                      {/* ADDED: Availability Toggle */}
+                      {/* Availability Toggle */}
                       <button 
                         onClick={() => updateMenuItem(item.id, "isAvailable", !item.isAvailable)} 
                         className={`p-2.5 sm:p-3 shrink-0 rounded-xl transition-colors border flex items-center justify-center ${item.isAvailable ? 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100' : 'text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100'}`}

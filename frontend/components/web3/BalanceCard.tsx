@@ -1,4 +1,19 @@
-export default function BalanceCard({ label, value, symbol, icon }) {
+import React from "react";
+
+
+interface BalanceCardProps {
+  label: string;
+  value: string | number | null | undefined; 
+  symbol: string;
+  icon: React.ReactNode; 
+}
+
+export default function BalanceCard({ 
+  label, 
+  value, 
+  symbol, 
+  icon 
+}: BalanceCardProps) {
   return (
     <div className="bg-white rounded-2xl border border-[#C4A484]/20 p-5 flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow duration-200">
       <div className="flex items-center gap-2 text-[#C4A484] text-xs font-medium uppercase tracking-wider">

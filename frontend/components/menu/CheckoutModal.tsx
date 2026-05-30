@@ -39,6 +39,7 @@ export default function CheckoutModal({
   const totalUSDC = cart.reduce((s, i) => s + (i.priceUSDC * i.qty), 0);
   const totalTokens = cart.reduce((s, i) => s + (i.priceToken * i.qty), 0);
   const totalItems = cart.reduce((s, i) => s + i.qty, 0);
+  const totalGiftEarned = cart.reduce((s, i) => s + (i.tokenGifted * i.qty), 0);
 
   const [totalETH, setTotalETH] = useState<string>("0.0000");
   const [costInWei, setCostInWei] = useState<bigint | null>(null);
@@ -124,7 +125,7 @@ export default function CheckoutModal({
         if (!costInWei) throw new Error("ETH price not loaded yet");
 
         const scaledUSDC = Math.round(totalUSDC * 100);
-        const tx = await contract.buyCoffeeWithETH(scaledUSDC, { value: costInWei });
+        const tx = await contract.buyCoffeeWithETH(scaledUSDC, totalGiftEarned ,{ value: costInWei });
         await tx.wait();
 
       } else if (payMethod === "usdc") {
@@ -142,7 +143,7 @@ export default function CheckoutModal({
         }
 
         const scaledUSDC = Math.round(totalUSDC * 100);
-        const tx = await contract.buyCoffeeWithUSDC(scaledUSDC);
+        const tx = await contract.buyCoffeeWithUSDC(scaledUSDC, totalGiftEarned);
         await tx.wait();
 
       } else if (payMethod === "token") {
