@@ -14,7 +14,6 @@ interface CheckoutModalProps {
   cart: CartItem[];
   provider: BrowserProvider;
   account: string;
-  // 1. Added the balance props
   ethBalance: string | null;
   usdcBalance: string | null;
   cafeBalance: string | null;
@@ -68,6 +67,14 @@ export default function CheckoutModal({
 
   const handleApprove = async () => {
     setError("");
+    
+    // FRONTEND BALANCE CHECK FOR USDC APPROVAL
+    const currentUsdc = parseFloat(usdcBalance || "0");
+    if (currentUsdc < totalUSDC) {
+      setError(`Insufficient balance. You need $${totalUSDC.toFixed(2)} USDC.`);
+      return;
+    }
+
     setApproving(true);
     try {
       const signer = await provider.getSigner();
@@ -86,6 +93,28 @@ export default function CheckoutModal({
 
   const handlePay = async () => {
     setError("");
+    
+    // FRONTEND BALANCE CHECKS FOR PAYMENTS
+    if (payMethod === "eth") {
+      const currentEth = parseFloat(ethBalance || "0");
+      if (currentEth < parseFloat(totalETH)) {
+        setError(`Insufficient balance. You need at least ${parseFloat(totalETH).toFixed(5)} ETH.`);
+        return;
+      }
+    } else if (payMethod === "usdc") {
+      const currentUsdc = parseFloat(usdcBalance || "0");
+      if (currentUsdc < totalUSDC) {
+        setError(`Insufficient balance. You need $${totalUSDC.toFixed(2)} USDC.`);
+        return;
+      }
+    } else if (payMethod === "token") {
+      const currentTokens = parseFloat(cafeBalance || "0");
+      if (currentTokens < totalTokens) {
+        setError(`Insufficient balance. You need ${totalTokens} CCT.`);
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const signer = await provider.getSigner();
@@ -95,12 +124,10 @@ export default function CheckoutModal({
         if (!costInWei) throw new Error("ETH price not loaded yet");
 
         const scaledUSDC = Math.round(totalUSDC * 100);
-
         const tx = await contract.buyCoffeeWithETH(scaledUSDC, { value: costInWei });
         await tx.wait();
 
       } else if (payMethod === "usdc") {
-        console.log("USDC:",totalUSDC);
         const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, provider);
         const allowance = await usdc.allowance(account, CAFE_PAYMENT_ADDRESS);
         const required = ethers.parseUnits(totalUSDC.toFixed(6), 6);
@@ -115,13 +142,11 @@ export default function CheckoutModal({
         }
 
         const scaledUSDC = Math.round(totalUSDC * 100);
-        
         const tx = await contract.buyCoffeeWithUSDC(scaledUSDC);
         await tx.wait();
 
       } else if (payMethod === "token") {
-        const required = ethers.parseUnits(totalTokens.toString(), 18); 
-        const tx = await contract.buyCoffeeWithTokens(required);
+        const tx = await contract.buyCoffeeWithTokens(totalTokens);
         await tx.wait();
       }
 
@@ -152,7 +177,7 @@ export default function CheckoutModal({
                 {item.emoji} {item.name} <span className="text-[#6F4E37]/50">×{item.qty}</span>
               </span>
               <div className="flex gap-3 font-medium text-[#3d2b1a]">
-                <span className="text-[#C4A484]">{item.priceToken * item.qty} CPT</span>
+                <span className="text-[#C4A484]">{item.priceToken * item.qty} CCT</span>
                 <span>${(item.priceUSDC * item.qty).toFixed(2)}</span>
               </div>
             </div>
@@ -161,7 +186,7 @@ export default function CheckoutModal({
 
         <div className="bg-white shrink-0 pt-2 pb-6 border-t border-[#C4A484]/10">
           
-          {/* 2. Enhanced Totals Box with Balances */}
+          {/* Enhanced Totals Box with Balances */}
           <div className="mx-6 rounded-2xl bg-[#FFF8E7] px-4 py-3 mb-4 space-y-2.5">
             
             <div className="flex justify-between items-start text-sm text-[#6F4E37]/70">
@@ -177,9 +202,9 @@ export default function CheckoutModal({
             <div className="flex justify-between items-start text-sm text-[#6F4E37]/70">
               <div className="flex flex-col">
                 <span>Token Total</span>
-                <span className="text-[10px] font-semibold text-[#C4A484]">Avail: {cafeBalance || "0"} CPT</span>
+                <span className="text-[10px] font-semibold text-[#C4A484]">Avail: {cafeBalance || "0"} CCT</span>
               </div>
-              <span className="font-medium mt-0.5">{totalTokens} CPT</span>
+              <span className="font-medium mt-0.5">{totalTokens} CCT</span>
             </div>
 
             <div className="flex justify-between items-start font-bold text-[#3d2b1a] pt-2 border-t border-[#C4A484]/20 mt-1">
@@ -202,7 +227,10 @@ export default function CheckoutModal({
               ].map(m => (
                 <button
                   key={m.id}
-                  onClick={() => setPayMethod(m.id as any)}
+                  onClick={() => {
+                    setPayMethod(m.id as any);
+                    setError(""); // Clear any errors when swapping payment methods
+                  }}
                   className={`rounded-xl py-2.5 text-xs font-bold border transition-all duration-150 ${
                     payMethod === m.id
                       ? "bg-[#6F4E37] text-white border-[#6F4E37] shadow-md"

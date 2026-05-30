@@ -10,6 +10,7 @@ export interface MenuItem {
   priceUSDC: number;
   priceToken: number;
   tokenGifted: number;
+  isAvailable: boolean;
 }
 
 export interface CartItem {
@@ -55,7 +56,6 @@ export default function MenuGrid({ onAddToCart, cart }: MenuGridProps) {
         const data: MenuItem[] = await res.json();
         setMenu(data);
       } catch (err) {
-        // 5. Safely handle the error type (TypeScript requires this for catch blocks)
         if (err instanceof Error) {
           setError(err.message);
         } else {
@@ -98,6 +98,7 @@ export default function MenuGrid({ onAddToCart, cart }: MenuGridProps) {
 
   return (
     <div>
+      {/* Category Filters */}
       <div className="flex flex-wrap gap-2 mb-5">
         {CATEGORIES.map(cat => (
           <button
@@ -114,40 +115,72 @@ export default function MenuGrid({ onAddToCart, cart }: MenuGridProps) {
         ))}
       </div>
 
+      {/* Menu Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {filtered.map(item => {
           const qty = cartQty(item.id);
+          // Check if item is available, fallback to true if the field is missing on older items
+          const isAvailable = item.isAvailable !== false; 
+
           return (
             <div
               key={item.id}
-              className="bg-white rounded-2xl border border-[#C4A484]/20 p-4 flex flex-col gap-2 shadow-sm hover:shadow-md transition-shadow duration-200 relative group"
+              className={`bg-white rounded-2xl border p-4 flex flex-col gap-2 transition-all duration-200 relative group ${
+                isAvailable 
+                  ? 'border-[#C4A484]/20 shadow-sm hover:shadow-md' 
+                  : 'border-gray-200 opacity-75 grayscale-[0.2]'
+              }`}
             >
-              <div className="absolute top-3 right-3 bg-[#FFF8E7] text-[#6F4E37] text-[10px] font-bold px-2 py-1 rounded-full border border-[#C4A484]/30 shadow-sm">
-                +{item.tokenGifted} 🎁
-              </div>
+              {/* Badges */}
+              {isAvailable ? (
+                <div className="absolute top-3 right-3 bg-[#FFF8E7] text-[#6F4E37] text-[10px] font-bold px-2 py-1 rounded-full border border-[#C4A484]/30 shadow-sm">
+                  +{item.tokenGifted} 🎁
+                </div>
+              ) : (
+                <div className="absolute top-3 right-3 bg-red-50 text-red-600 text-[10px] font-bold px-2 py-1 rounded-full border border-red-100 shadow-sm">
+                  Sold Out
+                </div>
+              )}
 
               <div className="text-4xl text-center py-2">{item.emoji}</div>
               
               <div>
-                <p className="font-bold text-[#3d2b1a] text-sm leading-tight">{item.name}</p>
-                <p className="text-[#6F4E37]/55 text-xs mt-0.5 leading-tight">{item.desc}</p>
+                <p className={`font-bold text-sm leading-tight ${isAvailable ? 'text-[#3d2b1a]' : 'text-gray-500'}`}>
+                  {item.name}
+                </p>
+                <p className={`text-xs mt-0.5 leading-tight ${isAvailable ? 'text-[#6F4E37]/55' : 'text-gray-400'}`}>
+                  {item.desc}
+                </p>
               </div>
               
               <div className="mt-auto">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-[#6F4E37]">${item.priceUSDC.toFixed(2)}</span>
-                  <span className="text-xs font-medium text-[#C4A484]">{item.priceToken} CPT</span>
+                  <span className={`text-xs font-bold ${isAvailable ? 'text-[#6F4E37]' : 'text-gray-400'}`}>
+                    ${item.priceUSDC.toFixed(2)}
+                  </span>
+                  <span className={`text-xs font-medium ${isAvailable ? 'text-[#C4A484]' : 'text-gray-400'}`}>
+                    {item.priceToken} CCT
+                  </span>
                 </div>
                 
                 <button
                   onClick={() => onAddToCart(item)}
+                  disabled={!isAvailable}
                   className={`w-full flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition-all duration-200 ${
-                    qty > 0
+                    !isAvailable
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : qty > 0
                       ? "bg-[#6F4E37] text-white"
                       : "bg-[#FFF8E7] border border-[#C4A484]/30 text-[#6F4E37] hover:bg-[#6F4E37] hover:text-white"
                   }`}
                 >
-                  {qty > 0 ? <><Check className="w-3 h-3" /> Added ({qty})</> : <><Plus className="w-3 h-3" /> Add to Cart</>}
+                  {!isAvailable ? (
+                    "Out of Stock"
+                  ) : qty > 0 ? (
+                    <><Check className="w-3 h-3" /> Added ({qty})</>
+                  ) : (
+                    <><Plus className="w-3 h-3" /> Add to Cart</>
+                  )}
                 </button>
               </div>
             </div>

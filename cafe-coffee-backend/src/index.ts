@@ -11,8 +11,12 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+import { ethers } from "ethers";
+
 export interface Env {
-  COFFEE_MENU: KVNamespace
+  COFFEE_MENU: KVNamespace;
+  SEPOLIA_RPC_URL: string;
+  CAFE_PAYMENT_ADDRESS: string;
 }
 
 export default
@@ -27,7 +31,7 @@ export default
           {
             headers:{
               "Access-Control-Allow-Origin":"*",
-              "Access-Control-Allow-Methods":"GET, OPTIONS",
+              "Access-Control-Allow-Methods":"GET, POST, PUT, OPTIONS",
               "Access-Control-Allow-Headers":"Content-type"
             },
           });
@@ -95,6 +99,36 @@ export default
           const body:any = await req.json();
 
           const updatedMenu = body.updatedMenu;
+          const auth = body.auth;
+
+          const fiveMinutes = 5 * 60 * 1000;
+          if(Date.now() - auth.timestamp > fiveMinutes)
+          {
+            return new Response("Signature expired", 
+              { 
+                status: 401,
+                headers: { "Access-Control-Allow-Origin": "*" } 
+              });
+          }
+
+          const recoveredAddress = ethers.verifyMessage(auth.message,auth.signature);
+
+          const provider = new ethers.JsonRpcProvider(env.SEPOLIA_RPC_URL);
+          const contract = new ethers.Contract(
+            env.CAFE_PAYMENT_ADDRESS,
+            ["function owner() view returns (address)"],
+            provider
+          );
+
+          const realOwner = await contract.owner();
+
+          if (recoveredAddress.toLowerCase() !== realOwner.toLowerCase()) {
+            return new Response("Unauthorized: Not the contract owner", 
+              { 
+                status: 403,
+                headers: { "Access-Control-Allow-Origin": "*" }
+              });
+          }
 
           if (!updatedMenu) {
             return new Response(JSON.stringify({ error: "Missing updatedMenu payload" }), {

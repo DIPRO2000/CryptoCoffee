@@ -8,7 +8,6 @@ import Link from "next/link";
 // Adjust these relative imports based on your folder structure!
 import WalletConnect from "@/components/web3/WalletConnect";
 import BalanceCard from "@/components/web3/BalanceCard";
-import RedeemTokens from "@/components/web3/RedeemTokens";
 import AdminPanel from "@/components/web3/AdminPanel";
 import MenuGrid, {MenuItem, CartItem} from "@/components/menu/MenuGrid";
 import CartSidebar from "@/components/menu/CardSidebar";
@@ -221,7 +220,7 @@ export default function Marketplace() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <BalanceCard label="ETH" value={ethBalance} symbol="Ether" icon="⟠" />
               <BalanceCard label="USDC" value={usdcBalance} symbol="USD Coin" icon="💵" />
-              <BalanceCard label="CAFE" value={cafeBalance} symbol="CafeToken" icon="☕" />
+              <BalanceCard label="CAFE" value={cafeBalance} symbol="CryptoCoffeeToken (CCT)" icon="☕" />
             </div>
           </section>
         )}
@@ -265,8 +264,6 @@ export default function Marketplace() {
               </div>
               <MenuGrid onAddToCart={addToCart} cart={cart} />
             </section>
-
-            <RedeemTokens provider={provider} cafeBalance={cafeBalance} onSuccess={handleSuccess} />
 
             {isOwner && (
               <AdminPanel provider={provider} onSuccess={handleSuccess} />

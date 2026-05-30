@@ -90,7 +90,7 @@ export default function CartSidebar({ cart, onUpdate, onRemove, onCheckout, onCl
                   <p className="font-semibold text-[#3d2b1a] text-sm truncate">{item.name}</p>
                   {/* Show both USDC and Token price per item row */}
                   <p className="text-[#6F4E37]/60 text-xs font-medium mt-0.5">
-                    ${(item.priceUSDC * item.qty).toFixed(2)} <span className="mx-1">•</span> {item.priceToken * item.qty} CPT
+                    ${(item.priceUSDC * item.qty).toFixed(2)} <span className="mx-1">•</span> {item.priceToken * item.qty} CCT
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -141,7 +141,7 @@ export default function CartSidebar({ cart, onUpdate, onRemove, onCheckout, onCl
               
               <div className="flex justify-between items-center text-sm text-[#6F4E37]/70">
                 <span>Pay with Tokens</span>
-                <span className="font-medium">{totalTokens} CPT</span>
+                <span className="font-medium">{totalTokens} CCT</span>
               </div>
 
               <div className="flex justify-between items-center font-bold text-[#3d2b1a] text-base pt-1">

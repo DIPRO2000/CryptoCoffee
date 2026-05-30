@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Coffee, ArrowRight, ShieldCheck, Zap, Gem, Code2, Menu, X } from "lucide-react";
+// Added 'Lock' to the lucide-react imports!
+import { Coffee, ArrowRight, ShieldCheck, Zap, Gem, Code2, Menu, X, Lock } from "lucide-react";
 import { FaGithub, FaTwitter } from "react-icons/fa";
 
 export default function LandingPage() {
@@ -31,6 +32,11 @@ export default function LandingPage() {
             <a href="#features" className="hover:text-[#3d2b1a] transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-[#3d2b1a] transition-colors">How it Works</a>
             <a href="https://sepolia.etherscan.io/" target="_blank" rel="noreferrer" className="hover:text-[#3d2b1a] transition-colors">Contract</a>
+            
+            {/* Added: Desktop Admin Link */}
+            <Link href="/admin" className="hover:text-[#3d2b1a] transition-colors flex items-center gap-1.5 opacity-70 hover:opacity-100">
+              <Lock className="w-3.5 h-3.5" /> Admin
+            </Link>
           </nav>
 
           {/* Desktop Launch Button */}
@@ -76,15 +82,24 @@ export default function LandingPage() {
                 target="_blank" 
                 rel="noreferrer"
                 onClick={() => setMobileMenuOpen(false)}
-                className="hover:text-[#3d2b1a] py-2 transition-colors"
+                className="hover:text-[#3d2b1a] py-2 border-b border-zinc-100 transition-colors"
               >
                 Contract Link
               </a>
+              
+              {/* Added: Mobile Admin Link */}
+              <Link 
+                href="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-[#3d2b1a] py-2 transition-colors flex items-center gap-2"
+              >
+                <Lock className="w-4 h-4" /> Admin Portal
+              </Link>
             </nav>
             <Link 
               href="/marketplace"
               onClick={() => setMobileMenuOpen(false)}
-              className="bg-[#3d2b1a] hover:bg-[#2a1d12] text-white text-center font-bold py-3.5 rounded-xl transition-all shadow-md w-full block"
+              className="bg-[#3d2b1a] hover:bg-[#2a1d12] text-white text-center font-bold py-3.5 rounded-xl transition-all shadow-md w-full block mt-2"
             >
               Launch Marketplace App
             </Link>
@@ -180,11 +195,6 @@ export default function LandingPage() {
                   { step: "03", title: "Earn Tokens", desc: "Watch ERC-20 loyalty tokens drop directly into your wallet." }
                 ].map((s, i) => (
                   <div key={i} className="flex flex-col items-center relative group">
-                    {/* Vertical Connecting Line for Mobile screen stacking */}
-                    {/* {i < 2 && (
-                      <div className="sm:hidden absolute top-[64px] bottom-[-40px] w-0.5 bg-[#6F4E37] -z-10"></div>
-                    )} */}
-                    
                     <div className="w-14 sm:w-16 h-14 sm:h-16 bg-[#6F4E37] text-white rounded-full flex items-center justify-center text-lg sm:text-xl font-bold border-4 border-[#3d2b1a] mb-4 sm:mb-6 shadow-xl relative z-10">
                       {s.step}
                     </div>
