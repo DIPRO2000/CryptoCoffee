@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { ethers, BrowserProvider } from "ethers";
 import { Coffee, CheckCircle, ShoppingBag, ArrowLeft, Info } from "lucide-react"; 
 import Link from "next/link";
-import { Eip1193Provider } from "ethers";
 
 // Adjust these relative imports based on your folder structure!
 import WalletConnect from "@/components/web3/WalletConnect";
@@ -12,6 +11,7 @@ import BalanceCard from "@/components/web3/BalanceCard";
 import MenuGrid, {MenuItem, CartItem} from "@/components/menu/MenuGrid";
 import CartSidebar from "@/components/menu/CardSidebar";
 import CheckoutModal from "@/components/menu/CheckoutModal";
+import { Eip1193Provider } from "ethers";
 
 import {
   CAFE_TOKEN_ADDRESS,
@@ -24,7 +24,12 @@ import {
 
 declare global {
   interface Window {
-    ethereum?: Eip1193Provider;
+    // We take the official ethers type AND append our custom event listeners
+    ethereum?: Eip1193Provider & {
+      on: (eventName: string, callback: (...args: any[]) => void) => void;
+      removeListener: (eventName: string, callback: (...args: any[]) => void) => void;
+      isMetaMask?: boolean;
+    };
   }
 }
 
