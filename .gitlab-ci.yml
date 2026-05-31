@@ -1,0 +1,31 @@
+stages:
+    - test
+    - deploy
+
+Backend_Workers_Testing:
+    stage: test
+    image: node:22-alpine
+    script:
+        - cd cafe-coffee-backend
+        - npm ci
+
+Frontend:
+    stage: test
+    image: node:22-alpine
+    script:
+        - cd frontend
+        - npm ci
+        - npm run lint
+        - npm run build
+
+
+Backend_Workers_Deploy:
+    stage: deploy
+    image: node:22-alpine
+    script:
+        - cd cafe-coffee-backend
+        - npm ci
+        - npx wrangler deploy
+    only: 
+        - main
+

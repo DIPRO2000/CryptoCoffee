@@ -17,7 +17,6 @@
     "wrangler": "^4.94.0"
   },
   "dependencies": {
-    "@upstash/redis": "^1.38.0",
     "ethers": "^6.16.0"
   }
 }
