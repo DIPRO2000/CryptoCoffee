@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { ethers, BrowserProvider } from "ethers";
 import { Coffee, CheckCircle, ShoppingBag, ArrowLeft, Info } from "lucide-react"; 
 import Link from "next/link";
+import { Eip1193Provider } from "ethers";
 
 // Adjust these relative imports based on your folder structure!
 import WalletConnect from "@/components/web3/WalletConnect";
@@ -23,7 +24,7 @@ import {
 
 declare global {
   interface Window {
-    ethereum?: any;
+    ethereum?: Eip1193Provider;
   }
 }
 
@@ -36,7 +37,6 @@ export default function Marketplace() {
   const [ethBalance, setEthBalance] = useState<string | null>(null);
   const [usdcBalance, setUsdcBalance] = useState<string | null>(null);
   const [cafeBalance, setCafeBalance] = useState<string | null>(null);
-  const [isOwner, setIsOwner] = useState<boolean>(false);
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState<boolean>(false);
@@ -83,7 +83,6 @@ export default function Marketplace() {
 
       const payment = new ethers.Contract(CAFE_PAYMENT_ADDRESS, CAFE_PAYMENT_ABI, prov);
       const owner = await payment.owner();
-      setIsOwner(owner.toLowerCase() === acc.toLowerCase());
     } catch {
       // silently handle if contracts not deployed yet
     }

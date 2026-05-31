@@ -2,9 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import logo from "./android-chrome-192x192.png"
-// Added 'Lock' to the lucide-react imports!
 import { Coffee, ArrowRight, ShieldCheck, Zap, Gem, Code2, Menu, X, Lock } from "lucide-react";
 import { FaGithub, FaTwitter } from "react-icons/fa";
 
@@ -22,7 +19,6 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-[#6F4E37] to-[#3d2b1a] rounded-xl flex items-center justify-center shadow-lg shadow-[#6F4E37]/20 flex-shrink-0">
               <Coffee className="w-5 h-5 text-white" />
-              {/* <Image src={logo} alt="Cafe Logo" placeholder="blur" height={40} width={40} /> */}
             </div>
             <div>
               <span className="font-extrabold text-[#3d2b1a] text-lg sm:text-xl tracking-tight leading-none block">Crypto Cafe</span>

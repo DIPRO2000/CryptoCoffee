@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import { X, Loader2 } from "lucide-react";
 import { ethers, BrowserProvider } from "ethers";
 import { 
   CAFE_PAYMENT_ADDRESS, 
   CAFE_PAYMENT_ABI, 
-  USDC_ADDRESS, 
-  CAFE_TOKEN_ADDRESS, 
+  USDC_ADDRESS,  
   ERC20_ABI 
 } from "@/components/web3/contracts";
 import { CartItem } from "@/components/menu/MenuGrid";
@@ -85,8 +84,9 @@ export default function CheckoutModal({
       const tx = await contract.approve(CAFE_PAYMENT_ADDRESS, parsedAmount);
       await tx.wait();
       
-    } catch (e: any) {
-      setError(e.reason || e.message || "Approval failed");
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      setError(errorMessage || "Approval failed");
     } finally {
       setApproving(false);
     }
@@ -152,8 +152,9 @@ export default function CheckoutModal({
       }
 
       onSuccess(`Order placed! ☕ ${totalItems} item${totalItems > 1 ? "s" : ""} purchased.`);
-    } catch (e: any) {
-      setError(e.reason || e.message || "Payment failed");
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      setError(errorMessage || "Payment failed");
     } finally {
       setLoading(false);
     }
@@ -229,8 +230,8 @@ export default function CheckoutModal({
                 <button
                   key={m.id}
                   onClick={() => {
-                    setPayMethod(m.id as any);
-                    setError(""); // Clear any errors when swapping payment methods
+                    setPayMethod(m.id as SetStateAction<"usdc" | "eth" | "token">);
+                    setError(""); 
                   }}
                   className={`rounded-xl py-2.5 text-xs font-bold border transition-all duration-150 ${
                     payMethod === m.id

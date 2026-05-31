@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { ethers, BrowserProvider } from "ethers";
 import { Lock, Coffee, Wallet, ShieldAlert, Save, RefreshCw, Send, Plus, Trash2, AlertCircle, ListChecks, Undo2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
@@ -98,7 +98,7 @@ export default function AdminPage() {
       } else {
         setIsOwner(false);
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e);
     } finally {
       setLoadingAuth(false);
@@ -117,8 +117,8 @@ export default function AdminPage() {
       
       showMessage(`Successfully withdrew ${asset} to your wallet!`, "success");
       await fetchBalances(provider, account); // Refresh all balances to reflect the transfer
-    } catch (e: any) {
-      showMessage(e.reason || e.message || `Failed to withdraw ${asset}`, "error");
+    } catch (e: unknown) {
+      showMessage((e as { reason?: string; message?: string }).reason || (e as { message?: string }).message || `Failed to withdraw ${asset}`, "error");
     } finally {
       setLoadingAction(null);
     }
@@ -134,8 +134,8 @@ export default function AdminPage() {
       await tx.wait();
       showMessage("Ownership transferred successfully. You will now be logged out.", "success");
       setTimeout(() => window.location.reload(), 3000); 
-    } catch (e: any) {
-      showMessage(e.reason || e.message || "Failed to transfer ownership", "error");
+    } catch (e: unknown) {
+      showMessage((e as { reason?: string; message?: string }).reason || (e as { message?: string }).message || "Failed to transfer ownership", "error");
     } finally {
       setLoadingAction(null);
     }
@@ -147,16 +147,18 @@ export default function AdminPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/menu`);
       if (res.ok) {
         const data = await res.json();
-        const sanitizedData = data.map((item: any) => ({
+        const sanitizedData = data.map((item: MenuItem) => ({
           ...item,
           isAvailable: item.isAvailable !== undefined ? item.isAvailable : true
         }));
         setMenuItems(JSON.parse(JSON.stringify(sanitizedData)));
         setOriginalMenuItems(JSON.parse(JSON.stringify(sanitizedData)));
       }
-    } catch (e) {
-      showMessage("Failed to load menu from database.", "error");
-    } finally {
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      showMessage(`Failed to load menu from database: ${errorMessage}`, "error");
+    }
+     finally {
       setIsFetchingMenu(false);
     }
   };
@@ -182,8 +184,8 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(await res.text());
       showMessage("Menu successfully updated in the database!", "success");
       setOriginalMenuItems(JSON.parse(JSON.stringify(menuItems)));
-    } catch (e: any) {
-      showMessage(e.message || "Failed to securely update menu.", "error");
+    } catch (e: unknown) {
+      showMessage((e as { message?: string }).message || "Failed to securely update menu.", "error");
     } finally {
       setLoadingAction(null);
     }
@@ -200,7 +202,7 @@ export default function AdminPage() {
     setMenuItems([...menuItems, newItem]);
   };
   
-  const updateMenuItem = (id: string | number, field: string, value: any) => {
+  const updateMenuItem = (id: string | number, field: string, value: string | number | boolean) => {
     setMenuItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
