@@ -48,10 +48,34 @@ Navigate to the blockchain directory, install dependencies, and set up your loca
 ```bash
 cd blockchain
 npm install
+```
 
 Create a .env file in the /blockchain directory:
 
+```bash
 SEPOLIA_RPC_URL="your_alchemy_or_infura_url"
 SEPOLIA_PRIVATE_KEY="your_wallet_private_key"
 ETHERSCAN_API_KEY="your_etherscan_key"
+```
+
+### 2. Backend API Setup
+Navigate to the backend directory and run the Cloudflare Worker locally:
+
+```bash
+cd cafe-coffee-backend
+npm install
+npx wrangler dev
+```
+**Production backend deployments are handled automatically via GitLab CI/CD upon merging to the main branch.**
+
+### 3. Frontend Setup
+Navigate to the frontend directory, configure your environment variables, and start the Next.js development server:
+
+```bash
+cd frontend
+npm install
+```
+
+Create a .env.local file in the /frontend directory:
+
 
