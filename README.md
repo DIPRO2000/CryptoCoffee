@@ -122,5 +122,13 @@ npm run dev
 ```
 Open http://localhost:3000 with your browser to experience the localized sandbox flow!
 
+### 🛠️ Build & Vercel Deployment Notes
+When linking this repository layout inside Vercel:
+1. Ensure the Root Directory setting is explicitly set to frontend
+2. Configure your Framework Preset field to explicitly use Next.js to guarantee the builder targets the hidden .next production output directory rather than a static fallback.
+3. Import your environment variables into the Production and Preview scopes via Vercel's .env configuration dashboard before starting your build pipeline execution.
 
+### 🤝 Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
+Developed with ❤️ by Diprajit Chakraborty
 
