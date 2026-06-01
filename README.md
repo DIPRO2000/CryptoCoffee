@@ -48,3 +48,10 @@ Navigate to the blockchain directory, install dependencies, and set up your loca
 ```bash
 cd blockchain
 npm install
+
+Create a .env file in the /blockchain directory:
+
+SEPOLIA_RPC_URL="your_alchemy_or_infura_url"
+SEPOLIA_PRIVATE_KEY="your_wallet_private_key"
+ETHERSCAN_API_KEY="your_etherscan_key"
+
