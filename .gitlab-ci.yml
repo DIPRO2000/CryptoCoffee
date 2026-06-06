@@ -33,8 +33,6 @@ Backend_Workers_Deploy:
         - cd cafe-coffee-backend
         - npm ci
         - npx wrangler deploy
-    only: 
-        - main
     rules:
         - if: '$CI_COMMIT_BRANCH == "main"'
           changes:
