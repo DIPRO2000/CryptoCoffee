@@ -9,8 +9,9 @@ Backend_Workers_Testing:
         - cd cafe-coffee-backend
         - npm ci
     rules:
-        changes:
+        - changes:
             - cafe-coffee-backend/**/*
+
 
 Frontend:
     stage: test
@@ -21,7 +22,7 @@ Frontend:
         - npm run lint
         - npm run build
     rules:
-        changes:
+        - changes:
             - frontend/**/*
 
 
