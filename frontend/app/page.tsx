@@ -1,8 +1,8 @@
-"use client"; // Required for the stateful mobile menu toggle
+"use client"; 
 
 import { useState } from "react";
 import Link from "next/link";
-import { Coffee, ArrowRight, ShieldCheck, Zap, Gem, Code2, Menu, X, Lock } from "lucide-react";
+import { Coffee, ArrowRight, ShieldCheck, Zap, Gem, Code2, Menu, X, Lock, ChevronDown } from "lucide-react";
 import { FaGithub, FaTwitter } from "react-icons/fa";
 
 export default function LandingPage() {
@@ -30,9 +30,34 @@ export default function LandingPage() {
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-[#6F4E37]">
             <a href="#features" className="hover:text-[#3d2b1a] transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-[#3d2b1a] transition-colors">How it Works</a>
-            <a href="https://sepolia.etherscan.io/" target="_blank" rel="noreferrer" className="hover:text-[#3d2b1a] transition-colors">Contract</a>
             
-            {/* Added: Desktop Admin Link */}
+            {/* Desktop Contracts Dropdown (Hover) */}
+            <div className="relative group py-2">
+              <button className="flex items-center gap-1 hover:text-[#3d2b1a] transition-colors focus:outline-none">
+                Contracts <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform duration-200" />
+              </button>
+              
+              {/* Dropdown Menu */}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-48 bg-white border border-[#C4A484]/20 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 flex flex-col overflow-hidden">
+                <a 
+                  href="https://sepolia.etherscan.io/address/0x279a71b485FCFCEB5421c8A573B21CC9eb0523dE#code" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="px-4 py-3 text-sm text-[#6F4E37] hover:bg-[#FFF8E7] hover:text-[#3d2b1a] border-b border-[#C4A484]/10 transition-colors"
+                >
+                  Loyalty Token (CCT)
+                </a>
+                <a 
+                  href="https://sepolia.etherscan.io/address/0x491b302C0BEEAd5Dfa9E32aA1386ca41D3E75209#code" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="px-4 py-3 text-sm text-[#6F4E37] hover:bg-[#FFF8E7] hover:text-[#3d2b1a] transition-colors"
+                >
+                  Payment Engine
+                </a>
+              </div>
+            </div>
+            
             <Link href="/admin" className="hover:text-[#3d2b1a] transition-colors flex items-center gap-1.5 opacity-70 hover:opacity-100">
               <Lock className="w-3.5 h-3.5" /> Admin
             </Link>
@@ -76,17 +101,34 @@ export default function LandingPage() {
               >
                 How it Works
               </a>
-              <a 
-                href="https://sepolia.etherscan.io/" 
-                target="_blank" 
-                rel="noreferrer"
-                onClick={() => setMobileMenuOpen(false)}
-                className="hover:text-[#3d2b1a] py-2 border-b border-zinc-100 transition-colors"
-              >
-                Contract Link
-              </a>
               
-              {/* Added: Mobile Admin Link */}
+              {/* Mobile Contracts Section */}
+              <div className="flex flex-col gap-2 py-2 border-b border-zinc-100">
+                <span className="text-[#3d2b1a] flex items-center gap-2">
+                  Contracts <ChevronDown className="w-4 h-4" />
+                </span>
+                <div className="flex flex-col pl-4 border-l-2 border-[#C4A484]/20 gap-3 mt-2">
+                  <a 
+                    href="https://sepolia.etherscan.io/address/0x279a71b485FCFCEB5421c8A573B21CC9eb0523dE#code" 
+                    target="_blank" 
+                    rel="noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-sm font-medium hover:text-[#3d2b1a] transition-colors"
+                  >
+                    Loyalty Token (CCT)
+                  </a>
+                  <a 
+                    href="https://sepolia.etherscan.io/address/0x491b302C0BEEAd5Dfa9E32aA1386ca41D3E75209#code" 
+                    target="_blank" 
+                    rel="noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-sm font-medium hover:text-[#3d2b1a] transition-colors"
+                  >
+                    Payment Engine
+                  </a>
+                </div>
+              </div>
+              
               <Link 
                 href="/admin"
                 onClick={() => setMobileMenuOpen(false)}
@@ -111,7 +153,6 @@ export default function LandingPage() {
         
         {/* Hero Section */}
         <section className="relative px-4 sm:px-6 pt-16 sm:pt-24 pb-24 sm:pb-32 overflow-hidden flex flex-col items-center text-center">
-          {/* Background decorative blobs */}
           <div className="absolute top-1/4 left-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-[#C4A484]/20 rounded-full mix-blend-multiply filter blur-3xl opacity-60 pointer-events-none"></div>
           <div className="absolute top-1/3 right-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-[#6F4E37]/10 rounded-full mix-blend-multiply filter blur-3xl opacity-60 pointer-events-none"></div>
 

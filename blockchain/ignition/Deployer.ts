@@ -3,12 +3,12 @@ import {network} from "hardhat";
 const { ethers, networkName } = await network.create();
 
 // For Local/Mock Contract
-const Mockv3AggregatorAddress= "0x069c6727837B29fC38e013aFE6a796FC6729202F";
-const USDCAddress= "0x6a07246d11564b44764E5ff765121fD931371c28";
+// const Mockv3AggregatorAddress= "0x069c6727837B29fC38e013aFE6a796FC6729202F";
+// const USDCAddress= "0x6a07246d11564b44764E5ff765121fD931371c28";
 
 // For Production Contract
-// const Mockv3AggregatorAddress= "0x694AA1769357215DE4FAC081bf1f309aDC325306";
-// const USDCAddress= "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
+const Mockv3AggregatorAddress= "0x694AA1769357215DE4FAC081bf1f309aDC325306";
+const USDCAddress= "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
 
 console.log(`Starting deployment on network: ${networkName}`);
 console.log("==========================================");

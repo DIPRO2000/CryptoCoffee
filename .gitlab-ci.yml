@@ -8,6 +8,9 @@ Backend_Workers_Testing:
     script:
         - cd cafe-coffee-backend
         - npm ci
+    rules:
+        changes:
+            - cafe-coffee-backend/**/*
 
 Frontend:
     stage: test
@@ -17,6 +20,9 @@ Frontend:
         - npm ci
         - npm run lint
         - npm run build
+    rules:
+        changes:
+            - frontend/**/*
 
 
 Backend_Workers_Deploy:
@@ -28,4 +34,9 @@ Backend_Workers_Deploy:
         - npx wrangler deploy
     only: 
         - main
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "main"'
+          changes:
+            - cafe-coffee-backend/**/*
+            
 
